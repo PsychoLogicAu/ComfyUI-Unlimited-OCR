@@ -1,0 +1,405 @@
+{
+  "id": "31d0473f-70c6-4285-a0aa-6d734e5f03bb",
+  "revision": 0,
+  "last_node_id": 20,
+  "last_link_id": 36,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UnlimitedOCRLoader",
+      "pos": [
+        6700,
+        1730
+      ],
+      "size": [
+        280,
+        110
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "unlimited_ocr",
+          "type": "unlimited_ocr_model",
+          "links": [
+            28
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PsychoLogicAu/ComfyUI-Unlimited-OCR",
+        "ver": "266b1f12a5261dc2ac6aff9452b309f2340dddc9",
+        "Node name for S&R": "UnlimitedOCRLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "baidu/Unlimited-OCR",
+        "bfloat16",
+        true
+      ]
+    },
+    {
+      "id": 5,
+      "type": "LoadImage",
+      "pos": [
+        6700,
+        1930
+      ],
+      "size": [
+        290,
+        320
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            29
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.27.0",
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "Test_OCR_document.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 19,
+      "type": "UnlimitedOCRConfig",
+      "pos": [
+        6700,
+        2330
+      ],
+      "size": [
+        290,
+        230
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "config",
+          "type": "unlimited_ocr_config",
+          "links": [
+            35
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PsychoLogicAu/ComfyUI-Unlimited-OCR",
+        "ver": "266b1f12a5261dc2ac6aff9452b309f2340dddc9",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "Node name for S&R": "UnlimitedOCRConfig"
+      },
+      "widgets_values": [
+        32768,
+        0,
+        35,
+        128,
+        true,
+        1024,
+        640,
+        0
+      ]
+    },
+    {
+      "id": 10,
+      "type": "PreviewImage",
+      "pos": [
+        7100,
+        2130
+      ],
+      "size": [
+        320,
+        430
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 32
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.27.0",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 16,
+      "type": "UnlimitedOCRInference",
+      "pos": [
+        7100,
+        1930
+      ],
+      "size": [
+        320,
+        110
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "unlimited_ocr",
+          "type": "unlimited_ocr_model",
+          "link": 28
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 29
+        },
+        {
+          "name": "config",
+          "shape": 7,
+          "type": "unlimited_ocr_config",
+          "link": 35
+        }
+      ],
+      "outputs": [
+        {
+          "name": "extracted_text",
+          "type": "text",
+          "links": [
+            31
+          ]
+        },
+        {
+          "name": "annotated_image",
+          "type": "IMAGE",
+          "links": [
+            32
+          ]
+        },
+        {
+          "name": "debug_text",
+          "type": "text",
+          "links": [
+            36
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PsychoLogicAu/ComfyUI-Unlimited-OCR",
+        "ver": "2ee654c1eba7a367fa1135d3b88f45ebbfe05d07",
+        "Node name for S&R": "UnlimitedOCRInference",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        "<image>document parsing."
+      ]
+    },
+    {
+      "id": 6,
+      "type": "PreviewAny",
+      "pos": [
+        7500,
+        1730
+      ],
+      "size": [
+        690,
+        460
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.27.0",
+        "Node name for S&R": "PreviewAny",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        }
+      },
+      "widgets_values": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": 20,
+      "type": "PreviewAny",
+      "pos": [
+        7500,
+        2230
+      ],
+      "size": [
+        690,
+        460
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 36
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.27.0",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.8"
+        },
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "links": [
+    [
+      28,
+      1,
+      0,
+      16,
+      0,
+      "unlimited_ocr_model"
+    ],
+    [
+      29,
+      5,
+      0,
+      16,
+      1,
+      "IMAGE"
+    ],
+    [
+      31,
+      16,
+      0,
+      6,
+      0,
+      "text"
+    ],
+    [
+      32,
+      16,
+      1,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      35,
+      19,
+      0,
+      16,
+      2,
+      "unlimited_ocr_config"
+    ],
+    [
+      36,
+      16,
+      2,
+      20,
+      0,
+      "text"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.1,
+      "offset": [
+        -6585.177157067884,
+        -1654.538313737915
+      ]
+    },
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "frontendVersion": "1.45.20",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
