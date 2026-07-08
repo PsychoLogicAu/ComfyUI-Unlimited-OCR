@@ -7,11 +7,9 @@ This module provides:
 - Text extraction, document parsing, and general OCR
 """
 
-import os
-import re
 import tempfile
 import torch
-from PIL import Image, ImageOps
+from PIL import Image
 from transformers import AutoTokenizer, AutoModel
 
 import comfy.model_management
@@ -141,41 +139,26 @@ class UnlimitedOCRModel:
 
         Calls load_model_gpu() before inference so ComfyUI can manage
         GPU memory (evict other models if needed, track usage, etc.).
+
+        The raw prompt is passed directly to the model's infer method,
+        which handles conversation formatting internally. Do NOT pre-format
+        the prompt here, otherwise it will be formatted twice.
         """
         # --- Load model to GPU via ComfyUI memory management ---
         comfy.model_management.load_model_gpu(self.patcher)
 
         model = self._get_model()
 
-        # Build conversation
-        conversation = [
-            {
-                "role": "<|User|>",
-                "content": f"{prompt}",
-                "images": [image],
-            },
-            {"role": "<|Assistant|>", "content": ""},
-        ]
-
-        # Format the prompt using the model's conversation template
-        from .conversation import get_conv_template
-        prompt_formatted = format_messages(
-            conversations=conversation,
-            sft_format="plain",
-            system_prompt="",
-        )
-
-        # Load image
-        pil_image = load_image(image)
-
         # Default to a temp directory if no output_path is provided
         if not output_path:
             output_path = tempfile.mkdtemp(prefix="ocr_output_")
 
-        # Run inference
+        # Run inference - pass the raw prompt; the model's infer method
+        # builds its own conversation and formats it via format_messages().
+        # Pre-formatting here would cause double formatting.
         result = model.infer(
             self.tokenizer,
-            prompt=prompt_formatted,
+            prompt=prompt,
             image_file=image,
             output_path=output_path,
             base_size=base_size,
@@ -192,42 +175,3 @@ class UnlimitedOCRModel:
         return result
 
 
-def load_image(image_path):
-    """Load an image from a file path, handling EXIF orientation.
-
-    Args:
-        image_path: Path to the image file.
-
-    Returns:
-        PIL Image with corrected orientation.
-    """
-    try:
-        image = Image.open(image_path)
-        corrected_image = ImageOps.exif_transpose(image)
-        return corrected_image
-    except Exception as e:
-        print(f"error: {e}")
-        try:
-            return Image.open(image_path)
-        except:
-            return None
-
-
-def format_messages(conversations, sft_format="deepseek", system_prompt=""):
-    """Format conversations using the model's conversation template.
-
-    Args:
-        conversations: List of messages.
-        sft_format: The format of the SFT template to use.
-        system_prompt: The system prompt to use.
-
-    Returns:
-        The formatted text.
-    """
-    from .conversation import get_conv_template
-    conv = get_conv_template(sft_format)
-    conv.set_system_message(system_prompt)
-    for message in conversations:
-        conv.append_message(message["role"], message["content"].strip())
-    formatted = conv.get_prompt().strip()
-    return formatted
