@@ -118,10 +118,6 @@ The `debug_text` output contains the raw model output with bounding box annotati
 - **Upstream Repo**: [baidu/Unlimited-OCR](https://github.com/baidu/Unlimited-OCR)
 - **Paper**: [Unlimited OCR Works](https://arxiv.org/abs/2606.23050)
 
-## Known Issues
-
-- **Incorrect bounding box positions**: The `annotated_image` output of the **OCR / Text Extraction** node draws bounding boxes at incorrect locations. The extracted text in `extracted_text` is still correct.
-
 ## Requirements
 
 - Python 3.8+

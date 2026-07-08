@@ -163,20 +163,29 @@ def _draw_boxes_on_image(
 ) -> Image.Image:
     """Draw bounding boxes on image with different colors per label.
 
+    The model outputs coordinates in a normalized 0–999 scale. They are
+    scaled to the actual image dimensions before drawing.
+
     Args:
         image: PIL Image to draw on.
-        boxes: List of dicts with keys: label, x1, y1, x2, y2.
+        boxes: List of dicts with keys: label, x1, y1, x2, y2
+               (coordinates in 0–999 normalized space).
 
     Returns:
         PIL Image with drawn boxes.
     """
+    img_w, img_h = image.size
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
 
     for box in boxes:
         label = box["label"]
         color = _DETECTION_TYPE_COLORS.get(label, _DETECTION_TYPE_COLORS["default"])
-        x1, y1, x2, y2 = box["x1"], box["y1"], box["x2"], box["y2"]
+        # Scale from model's 0–999 normalized coordinates to actual image size
+        x1 = int(box["x1"] / 999 * img_w)
+        y1 = int(box["y1"] / 999 * img_h)
+        x2 = int(box["x2"] / 999 * img_w)
+        y2 = int(box["y2"] / 999 * img_h)
 
         # Draw rectangle
         draw.rectangle([x1, y1, x2, y2], outline=color, width=2)
