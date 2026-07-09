@@ -10,6 +10,7 @@ This module provides custom nodes for:
 import os
 import json
 import re
+import shutil
 import tempfile
 import logging
 from collections import OrderedDict
@@ -128,7 +129,8 @@ _DETECTION_TYPE_COLORS = {
 def _parse_det_annotations(text: str) -> list[dict]:
     """Parse bounding box annotations from model output.
 
-    Extracts <tag>label [x1, y1, x2, y2]</tag> patterns.
+    Extracts <|det|>label [x1, y1, x2, y2]<|/det|> patterns using regex
+    capture groups (no eval() -- matches ComfyUI-LocateAnything pattern).
 
     Args:
         text: The raw model output text.
@@ -136,22 +138,24 @@ def _parse_det_annotations(text: str) -> list[dict]:
     Returns:
         List of dicts with keys: label, x1, y1, x2, y2
     """
-    pattern = r'<\|det\|>\s*([A-Za-z_][\w-]*)\s*(\[[^\]]+\])\s*<\|/det\|>'
+    pattern = (
+        r'<\|det\|>\s*'
+        r'([A-Za-z_][\w-]*)'       # label
+        r'\s*\[\s*'
+        r'(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)'  # x1, y1, x2, y2
+        r'\s*\]\s*'
+        r'<\|/det\|>'
+    )
     results = []
     for match in re.finditer(pattern, text):
-        label = match.group(1)
-        box_str = match.group(2)
         try:
-            coords = eval(box_str)
-            if isinstance(coords, list) and len(coords) == 4:
-                x1, y1, x2, y2 = coords
-                results.append({
-                    "label": label,
-                    "x1": float(x1),
-                    "y1": float(y1),
-                    "x2": float(x2),
-                    "y2": float(y2),
-                })
+            results.append({
+                "label": match.group(1),
+                "x1": float(match.group(2)),
+                "y1": float(match.group(3)),
+                "x2": float(match.group(4)),
+                "y2": float(match.group(5)),
+            })
         except Exception:
             continue
     return results
@@ -391,24 +395,28 @@ class UnlimitedOCRInference(_InferenceNode):
         # Convert ComfyUI tensor to PIL and save to temp file
         pil = _tensor_to_pil(image[0])
         temp_path = _save_image_temporarily(pil)
+        temp_dir = os.path.dirname(temp_path)
 
-        # Run inference
-        result = model.infer(
-            image=temp_path,
-            prompt=prompt,
-            **kw,
-        )
+        try:
+            # Run inference
+            result = model.infer(
+                image=temp_path,
+                prompt=prompt,
+                **kw,
+            )
 
-        # Parse bounding boxes from the model output
-        boxes = _parse_det_annotations(result)
+            # Parse bounding boxes from the model output
+            boxes = _parse_det_annotations(result)
 
-        # Draw boxes on the image
-        annotated_pil = _draw_boxes_on_image(pil, boxes)
+            # Draw boxes on the image
+            annotated_pil = _draw_boxes_on_image(pil, boxes)
 
-        # Clean the text by removing annotations
-        cleaned_text = _clean_text(result)
+            # Clean the text by removing annotations
+            cleaned_text = _clean_text(result)
 
-        return (cleaned_text, _pil_to_tensor(annotated_pil), result)
+            return (cleaned_text, _pil_to_tensor(annotated_pil), result)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 class UnlimitedOCRDebug(_InferenceNode):
@@ -448,12 +456,16 @@ class UnlimitedOCRDebug(_InferenceNode):
 
         try:
             temp_path = _save_image_temporarily(pil)
-            result = model.infer(
-                image=temp_path,
-                prompt=test_prompt,
-                **kw,
-            )
-            debug_text = f"Test Result:\n{result[:200]}..."
+            temp_dir = os.path.dirname(temp_path)
+            try:
+                result = model.infer(
+                    image=temp_path,
+                    prompt=test_prompt,
+                    **kw,
+                )
+                debug_text = f"Test Result:\n{result[:200]}..."
+            finally:
+                shutil.rmtree(temp_dir, ignore_errors=True)
         except Exception as e:
             debug_text = f"Test Error: {e}"
 
