@@ -7,7 +7,6 @@ This module provides:
 - Text extraction, document parsing, and general OCR
 """
 
-import tempfile
 import torch
 from PIL import Image
 from transformers import AutoTokenizer, AutoModel
@@ -127,13 +126,10 @@ class UnlimitedOCRModel:
         base_size=1024,
         image_size=640,
         crop_mode=True,
-        save_results=False,
         max_length=32768,
         no_repeat_ngram_size=35,
         ngram_window=128,
         temperature=0.0,
-        output_path="",
-        eval_mode=True,
     ):
         """Run inference with ComfyUI-compatible memory management.
 
@@ -149,10 +145,6 @@ class UnlimitedOCRModel:
 
         model = self._get_model()
 
-        # Default to a temp directory if no output_path is provided
-        if not output_path:
-            output_path = tempfile.mkdtemp(prefix="ocr_output_")
-
         # Run inference - pass the raw prompt; the model's infer method
         # builds its own conversation and formats it via format_messages().
         # Pre-formatting here would cause double formatting.
@@ -160,18 +152,14 @@ class UnlimitedOCRModel:
             self.tokenizer,
             prompt=prompt,
             image_file=image,
-            output_path=output_path,
             base_size=base_size,
             image_size=image_size,
             crop_mode=crop_mode,
-            save_results=save_results,
             max_length=max_length,
             no_repeat_ngram_size=no_repeat_ngram_size,
             ngram_window=ngram_window,
             temperature=temperature,
-            eval_mode=eval_mode,
+            eval_mode=True,
         )
 
         return result
-
-

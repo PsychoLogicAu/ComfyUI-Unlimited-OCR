@@ -279,7 +279,6 @@ class UnlimitedOCRConfig:
                 "crop_mode": ("BOOLEAN", {"default": True}),
                 "base_size": ("INT", {"default": 1024, "min": 1, "max": 4096, "step": 1}),
                 "image_size": ("INT", {"default": 640, "min": 1, "max": 4096, "step": 1}),
-                "tps_interval": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
             }
         }
 
@@ -297,7 +296,6 @@ class UnlimitedOCRConfig:
         crop_mode,
         base_size=1024,
         image_size=640,
-        tps_interval=0,
     ):
         config = {
             "max_length": max_length,
@@ -307,7 +305,6 @@ class UnlimitedOCRConfig:
             "crop_mode": crop_mode,
             "base_size": base_size,
             "image_size": image_size,
-            "tps_interval": tps_interval,
         }
         return (config,)
 
@@ -323,7 +320,6 @@ class _InferenceNode:
         "crop_mode",
         "base_size",
         "image_size",
-        "tps_interval",
     }
 
     @staticmethod
