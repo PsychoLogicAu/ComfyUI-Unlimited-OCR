@@ -159,6 +159,7 @@ class UnlimitedOCRModel:
                 self.tokenizer,
                 prompt=prompt,
                 image_file=image,
+                output_path=output_path,
                 base_size=base_size,
                 image_size=image_size,
                 crop_mode=crop_mode,
