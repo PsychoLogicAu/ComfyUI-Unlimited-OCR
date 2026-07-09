@@ -7,6 +7,9 @@ This module provides:
 - Text extraction, document parsing, and general OCR
 """
 
+import os
+import shutil
+import tempfile
 import torch
 from PIL import Image
 from transformers import AutoTokenizer, AutoModel
@@ -145,21 +148,26 @@ class UnlimitedOCRModel:
 
         model = self._get_model()
 
-        # Run inference - pass the raw prompt; the model's infer method
-        # builds its own conversation and formats it via format_messages().
-        # Pre-formatting here would cause double formatting.
-        result = model.infer(
-            self.tokenizer,
-            prompt=prompt,
-            image_file=image,
-            base_size=base_size,
-            image_size=image_size,
-            crop_mode=crop_mode,
-            max_length=max_length,
-            no_repeat_ngram_size=no_repeat_ngram_size,
-            ngram_window=ngram_window,
-            temperature=temperature,
-            eval_mode=True,
-        )
-
-        return result
+        # The model's infer() requires a valid output_path directory.
+        # Create a temp dir and ensure it's cleaned up afterwards.
+        output_path = tempfile.mkdtemp(prefix="unlimited_ocr_temp_")
+        try:
+            # Run inference - pass the raw prompt; the model's infer method
+            # builds its own conversation and formats it via format_messages().
+            # Pre-formatting here would cause double formatting.
+            result = model.infer(
+                self.tokenizer,
+                prompt=prompt,
+                image_file=image,
+                base_size=base_size,
+                image_size=image_size,
+                crop_mode=crop_mode,
+                max_length=max_length,
+                no_repeat_ngram_size=no_repeat_ngram_size,
+                ngram_window=ngram_window,
+                temperature=temperature,
+                eval_mode=True,
+            )
+            return result
+        finally:
+            shutil.rmtree(output_path, ignore_errors=True)

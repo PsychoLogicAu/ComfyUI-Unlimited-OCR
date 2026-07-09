@@ -10,6 +10,7 @@ This module provides custom nodes for:
 import os
 import json
 import re
+import shutil
 import tempfile
 import logging
 from collections import OrderedDict
@@ -391,24 +392,28 @@ class UnlimitedOCRInference(_InferenceNode):
         # Convert ComfyUI tensor to PIL and save to temp file
         pil = _tensor_to_pil(image[0])
         temp_path = _save_image_temporarily(pil)
+        temp_dir = os.path.dirname(temp_path)
 
-        # Run inference
-        result = model.infer(
-            image=temp_path,
-            prompt=prompt,
-            **kw,
-        )
+        try:
+            # Run inference
+            result = model.infer(
+                image=temp_path,
+                prompt=prompt,
+                **kw,
+            )
 
-        # Parse bounding boxes from the model output
-        boxes = _parse_det_annotations(result)
+            # Parse bounding boxes from the model output
+            boxes = _parse_det_annotations(result)
 
-        # Draw boxes on the image
-        annotated_pil = _draw_boxes_on_image(pil, boxes)
+            # Draw boxes on the image
+            annotated_pil = _draw_boxes_on_image(pil, boxes)
 
-        # Clean the text by removing annotations
-        cleaned_text = _clean_text(result)
+            # Clean the text by removing annotations
+            cleaned_text = _clean_text(result)
 
-        return (cleaned_text, _pil_to_tensor(annotated_pil), result)
+            return (cleaned_text, _pil_to_tensor(annotated_pil), result)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 class UnlimitedOCRDebug(_InferenceNode):
@@ -448,12 +453,16 @@ class UnlimitedOCRDebug(_InferenceNode):
 
         try:
             temp_path = _save_image_temporarily(pil)
-            result = model.infer(
-                image=temp_path,
-                prompt=test_prompt,
-                **kw,
-            )
-            debug_text = f"Test Result:\n{result[:200]}..."
+            temp_dir = os.path.dirname(temp_path)
+            try:
+                result = model.infer(
+                    image=temp_path,
+                    prompt=test_prompt,
+                    **kw,
+                )
+                debug_text = f"Test Result:\n{result[:200]}..."
+            finally:
+                shutil.rmtree(temp_dir, ignore_errors=True)
         except Exception as e:
             debug_text = f"Test Error: {e}"
 
