@@ -129,7 +129,8 @@ _DETECTION_TYPE_COLORS = {
 def _parse_det_annotations(text: str) -> list[dict]:
     """Parse bounding box annotations from model output.
 
-    Extracts <tag>label [x1, y1, x2, y2]</tag> patterns.
+    Extracts <|det|>label [x1, y1, x2, y2]<|/det|> patterns using regex
+    capture groups (no eval() -- matches ComfyUI-LocateAnything pattern).
 
     Args:
         text: The raw model output text.
@@ -137,22 +138,24 @@ def _parse_det_annotations(text: str) -> list[dict]:
     Returns:
         List of dicts with keys: label, x1, y1, x2, y2
     """
-    pattern = r'<\|det\|>\s*([A-Za-z_][\w-]*)\s*(\[[^\]]+\])\s*<\|/det\|>'
+    pattern = (
+        r'<\|det\|>\s*'
+        r'([A-Za-z_][\w-]*)'       # label
+        r'\s*\[\s*'
+        r'(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)'  # x1, y1, x2, y2
+        r'\s*\]\s*'
+        r'<\|/det\|>'
+    )
     results = []
     for match in re.finditer(pattern, text):
-        label = match.group(1)
-        box_str = match.group(2)
         try:
-            coords = eval(box_str)
-            if isinstance(coords, list) and len(coords) == 4:
-                x1, y1, x2, y2 = coords
-                results.append({
-                    "label": label,
-                    "x1": float(x1),
-                    "y1": float(y1),
-                    "x2": float(x2),
-                    "y2": float(y2),
-                })
+            results.append({
+                "label": match.group(1),
+                "x1": float(match.group(2)),
+                "y1": float(match.group(3)),
+                "x2": float(match.group(4)),
+                "y2": float(match.group(5)),
+            })
         except Exception:
             continue
     return results
