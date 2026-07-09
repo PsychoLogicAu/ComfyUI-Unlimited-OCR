@@ -3,21 +3,12 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ComfyUI-Unlimited-OCR"
+name = "comfyui-unlimited-ocr"
 version = "1.0.0"
 description = "ComfyUI custom nodes for Baidu Unlimited-OCR model"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
-authors = [
-    {name = "Baidu", email = ""}
-]
-keywords = ["comfyui", "unlimited-ocr", "ocr", "text-extraction"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
 dependencies = [
     "torch>=2.0",
     "torchvision>=0.15",
@@ -26,15 +17,10 @@ dependencies = [
     "numpy>=1.25.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0",
-    "black",
-    "flake8",
-]
-
-[tool.setuptools.packages.find]
-include = ["unlimited_ocr_nodes*"]
+[tool.comfy]
+publisher = "PsychoLogicAu"
+type = "node_pack"
+nodes_folder = "."
 
 [tool.setuptools]
-py-modules = ["unlimited_ocr_nodes"]
+py-modules = ["unlimited_ocr_nodes", "unlimited_ocr_worker"]
