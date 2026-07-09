@@ -17,7 +17,7 @@ ComfyUI custom nodes for [Unlimited-OCR](https://huggingface.co/baidu/Unlimited-
 - **Automatic Model Download**: Downloads the Unlimited-OCR model from HuggingFace on first use
 - **High-Accuracy OCR**: Extract text from images with high accuracy
 - **Text Localization**: Locate and extract text regions within images
-- **Configurable Inference**: Adjustable max_length, temperature, no_repeat_ngram_size, ngram_window, crop_mode, base_size, image_size, and tps_interval
+- **Configurable Inference**: Adjustable max_length, temperature, no_repeat_ngram_size, ngram_window, crop_mode, base_size, and image_size
 - **Model Caching**: Models are cached to avoid redundant loading across workflows
 - **Debug Visualization**: Inspect model loading state and test OCR results
 
@@ -28,7 +28,7 @@ ComfyUI custom nodes for [Unlimited-OCR](https://huggingface.co/baidu/Unlimited-
 | Node | Display Name | Description |
 |------|-------|-------------|
 | **UnlimitedOCRLoader** | Load Unlimited OCR Model | Loads the Unlimited-OCR model from HuggingFace with configurable device, dtype, and trust_remote_code settings |
-| **UnlimitedOCRConfig** | Configure Inference | Creates inference configuration with parameters for max_length, temperature, no_repeat_ngram_size, ngram_window, crop_mode, base_size, image_size, and tps_interval |
+| **UnlimitedOCRConfig** | Configure Inference | Creates inference configuration with parameters for max_length, temperature, no_repeat_ngram_size, ngram_window, crop_mode, base_size, and image_size |
 
 ### Inference
 
@@ -79,8 +79,7 @@ ComfyUI custom nodes for [Unlimited-OCR](https://huggingface.co/baidu/Unlimited-
    - `ngram_window`: N-gram window size (default: 128)
    - `crop_mode`: Enable cropping (default: true)
    - `base_size`: Base image size (default: 1024)
-   - `image_size`: Image size for processing (default: 640)
-   - `tps_interval`: TPS interval (default: 0)
+    - `image_size`: Image size for processing (default: 640)
 
 3. Add an **OCR / Text Extraction** node:
    - Connect the model output and your image
